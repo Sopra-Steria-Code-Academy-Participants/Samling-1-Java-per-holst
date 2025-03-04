@@ -1,32 +1,75 @@
+name: Reusable workflow for CI/CD
 
-# Create an Azure App Service Plan
-resource "azurerm_service_plan" "main" {
-  name                = "${var.app_service_plan}-${var.environment}"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-  os_type             = "Linux"
-  sku_name            = "B2"
-  worker_count        = 1
-}
+on:
+  workflow_call:
+    inputs:
+      environment-name:
+        type: string
+        required: true
+      webapp-name:
+        type: string
+        required: true
 
-  # Create an Azure App Service
- resource "azurerm_linux_web_app" "main" {
-  name                = "${var.app_service}-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_service_plan.main.location
-  service_plan_id     = azurerm_service_plan.main.id
-  https_only          = true
+env:
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  RELEASE_ZIP_NAME: 'release.zip'
 
-  site_config {
-  http2_enabled    = true
-  app_command_line = "dotnet ./CodeAcademy.dll"
-  }
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment-name }}
+    steps:
+      - uses: actions/checkout@v4
 
-  identity {
-  type = "SystemAssigned"
-  }
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-  app_settings = {
-  ASPNETCORE_ENVIRONMENT = "Test"
-  }
-}
+      - name: Build solution
+        run: |
+          dotnet restore ./CodeAcademy
+          dotnet build ./CodeAcademy
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Create Publish Folder
+        run: dotnet publish ./CodeAcademy -c Release --property PublishDir="../myapp"
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-app-${{ inputs.environment-name }}
+          path: ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: ${{ inputs.environment-name }}
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}/swagger/index.html
+
+    steps:
+      - name: Cleanup conflicting artifact directory (only on self-hosted)
+        if: runner.environment == 'self-hosted'
+        run: rm -rf ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/CodeAcademy
+
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app-${{ inputs.environment-name }}
+        env: # This isnt needed when running in Githubs own runners, but needs to be specified if running on self hosted runners
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ inputs.webapp-name }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
