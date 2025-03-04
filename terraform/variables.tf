@@ -6,7 +6,7 @@ variable "environment" {
 variable "rg_name" {
   type        = string
   description = "The resource group name"
-  default     = "TODO"
+  default     = "Per Holst DK"
 }
 
 variable "rg_location" {
