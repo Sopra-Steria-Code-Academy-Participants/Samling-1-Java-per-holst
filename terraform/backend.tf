@@ -11,14 +11,14 @@ terraform {
     storage_account_name = "terraformcodeacademy"
     container_name       = "tfstate51"
     key                  = "terraform.tfstate51"
-#    use_oidc             = true
-    subscription_id      = "e25e96db-c54e-4251-bed2-5d7a3e52fc4e"
-    tenant_id            = "8b87af7d-8647-4dc7-8df4-5f69a2011bb5"
+    #    use_oidc             = true
+    subscription_id = "e25e96db-c54e-4251-bed2-5d7a3e52fc4e"
+    tenant_id       = "8b87af7d-8647-4dc7-8df4-5f69a2011bb5"
   }
 }
 provider "azurerm" {
   features {}
-#  use_oidc = true
+  #  use_oidc = true
 }
 
 #data "azurerm_client_config" "current" {}
