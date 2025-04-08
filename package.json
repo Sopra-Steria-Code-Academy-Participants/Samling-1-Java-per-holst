@@ -1,0 +1,14 @@
+{
+  "name": "samling-1-java",
+  "version": "1.0.0",
+  "description": "1. Lag en github action som bygger prosjektet ditt\r 2. Lag en github action som kjører kodeanalyse mot sonarqube\r     - Legg inn en SONAR_HOST_URL som secrets i ditt repository\r     - Legg inn en SONAR_TOKEN som secrets i ditt repository\r 3. Legg inn verdier i backend.tf filen (noen felter mangler verdier)\r 4. Legg inn default verdier i variables.tf filen\r 4. Lag en github action som lager ressurser med terraform filer\r     - Legg inn en TF_AZURE_CLIENT_ID som secrets i ditt repository\r     - Legg inn en TF_AZURE_SUBSCRIPTION_ID som secrets i ditt repository\r     - Legg inn en TF_AZURE_TENANT_ID som secrets i ditt repository\r 5. Lag en github action som sjekker drift-deteksjon\r 6. Lag en github action som deployer applikasjonen din til azure\r     - Legg inn en AZURE_CLIENT_ID som secrets i ditt repository\r     - Legg inn en AZURE_CLIENT_SECRET som secrets i ditt repository\r     - Legg inn en AZURE_SUBSCRIPTION_ID som secrets i ditt repository\r     - Legg inn en AZURE_TENANT_ID som secrets i ditt repository\r     - Last ned publish profile og legg inn en AZURE_WEBAPP_PUBLISH_PROFILE som secrets i ditt repository",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.14.0"
+  }
+}
