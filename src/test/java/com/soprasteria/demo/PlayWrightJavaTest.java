@@ -2,6 +2,7 @@ package com.soprasteria.demo;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.microsoft.playwright.APIRequest;
 import com.microsoft.playwright.APIRequestContext;
@@ -12,6 +13,7 @@ import com.microsoft.playwright.junit.UsePlaywright;
 import com.microsoft.playwright.options.RequestOptions;
 
 @UsePlaywright(PlayWrightJavaTest.CustomOptions.class) // Bootstrap al Playwright opsætning
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class PlayWrightJavaTest {
 
     // opsætning specifik til tests i denne test klasse.
